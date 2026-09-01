@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "App",
+                title = "GoDaddy",
                 version = AppVersion.SEMVER,
-                description = "API",
+                description = "Manages the dns records of the trevorism.com zone",
                 contact = @Contact(url = "https://trevorism.com", name = "Trevor Brooks", email = "tbrooks@trevorism.com")
         )
 )

@@ -49,11 +49,12 @@ dependencies {
 
     implementation("io.micronaut.groovy:micronaut-runtime-groovy")
     implementation("io.micronaut:micronaut-jackson-databind")
-    implementation("io.micronaut.security:micronaut-security")
+    implementation("io.micronaut.security:micronaut-security"){
+        exclude group: "io.jsonwebtoken"
+    }
     runtimeOnly("org.yaml:snakeyaml")
 
     implementation("jakarta.annotation:jakarta.annotation-api")
-    implementation 'io.projectreactor:reactor-core:3.8.6'
 
     implementation("io.swagger.core.v3:swagger-annotations")
     compileOnly("io.micronaut.openapi:micronaut-openapi"){
@@ -62,8 +63,12 @@ dependencies {
 
     runtimeOnly("ch.qos.logback:logback-classic")
 
+    implementation 'com.trevorism:micronaut-utility-beans:2.1.1'
+    implementation 'com.google.code.gson:gson:2.14.0'
+
     testImplementation 'com.trevorism:test-result-events:0.3.0'
     acceptanceImplementation 'io.cucumber:cucumber-groovy:6.10.4'
+    acceptanceImplementation "ch.qos.logback:logback-classic:1.5.19"
 }
 
 application {
@@ -102,7 +107,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.4
+                minimum = 0.8
             }
         }
     }
