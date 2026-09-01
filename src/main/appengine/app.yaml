@@ -1,0 +1,8 @@
+runtime: java25
+service: godaddy
+entrypoint: java -jar godaddy-all.jar
+handlers:
+  - url: /.*
+    secure: always
+    redirect_http_response_code: 301
+    script: auto
