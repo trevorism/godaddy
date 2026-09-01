@@ -17,6 +17,6 @@ Feature: The trevorism.com dns records are administered through this API
 
   Scenario: A system caller can add and then remove a txt record
     Given the application is alive
-    When a txt record is created at "_acceptance"
-    Then the txt record is present at "_acceptance"
-    And deleting the txt record removes exactly one record
+    When a txt record is created under a name unique to this run
+    Then the txt record is present at that name
+    And deleting the txt records at that name leaves none behind

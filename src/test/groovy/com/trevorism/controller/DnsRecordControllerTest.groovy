@@ -7,14 +7,36 @@ import org.junit.jupiter.api.Test
 class DnsRecordControllerTest {
 
     @Test
-    void testListRecords() {
+    void testListEveryRecord() {
+        def controller = new DnsRecordController([listRecords: { String type, String name ->
+            assert type == null
+            assert name == null
+            [new DnsRecord(recordId: "1"), new DnsRecord(recordId: "2")]
+        }] as GodaddyService)
+
+        assert controller.listRecords().size() == 2
+    }
+
+    @Test
+    void testListRecordsOfType() {
         def controller = new DnsRecordController([listRecords: { String type, String name ->
             assert type == "A"
-            assert name == "www"
+            assert name == null
             [new DnsRecord(recordId: "1", name: "www", type: "A", data: "1.2.3.4")]
         }] as GodaddyService)
 
-        assert controller.listRecords("A", "www").first().recordId == "1"
+        assert controller.listRecordsOfType("A").first().recordId == "1"
+    }
+
+    @Test
+    void testGetRecordsByTypeAndName() {
+        def controller = new DnsRecordController([listRecords: { String type, String name ->
+            assert type == "TXT"
+            assert name == "_acme-challenge"
+            [new DnsRecord(recordId: "1", data: "first"), new DnsRecord(recordId: "2", data: "second")]
+        }] as GodaddyService)
+
+        assert controller.getRecords("TXT", "_acme-challenge").size() == 2
     }
 
     @Test
@@ -57,11 +79,12 @@ class DnsRecordControllerTest {
 
     @Test
     void testDeleteRecords() {
-        def controller = new DnsRecordController([deleteRecords: { String type, String name, String data ->
-            assert data == "challenge-digest"
-            1
+        def controller = new DnsRecordController([deleteRecords: { String type, String name ->
+            assert type == "TXT"
+            assert name == "_acme-challenge"
+            2
         }] as GodaddyService)
 
-        assert controller.deleteRecords("TXT", "_acme-challenge", "challenge-digest") == 1
+        assert controller.deleteRecords("TXT", "_acme-challenge") == 2
     }
 }

@@ -12,7 +12,6 @@ import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.Logger
@@ -30,10 +29,26 @@ class DnsRecordController {
     }
 
     @Tag(name = "Dns Record Operations")
-    @Operation(summary = "Lists the dns records in the trevorism.com zone **Secure")
+    @Operation(summary = "Lists every dns record in the trevorism.com zone **Secure")
     @Get(value = "/", produces = MediaType.APPLICATION_JSON)
     @Secure(value = Roles.SYSTEM, permissions = Permissions.READ)
-    List<DnsRecord> listRecords(@QueryValue(defaultValue = "") String type, @QueryValue(defaultValue = "") String name) {
+    List<DnsRecord> listRecords() {
+        return godaddyService.listRecords(null, null)
+    }
+
+    @Tag(name = "Dns Record Operations")
+    @Operation(summary = "Lists the dns records of a given type **Secure")
+    @Get(value = "/{type}", produces = MediaType.APPLICATION_JSON)
+    @Secure(value = Roles.SYSTEM, permissions = Permissions.READ)
+    List<DnsRecord> listRecordsOfType(String type) {
+        return godaddyService.listRecords(type, null)
+    }
+
+    @Tag(name = "Dns Record Operations")
+    @Operation(summary = "Gets the dns records with a given type and name **Secure")
+    @Get(value = "/{type}/{name}", produces = MediaType.APPLICATION_JSON)
+    @Secure(value = Roles.SYSTEM, permissions = Permissions.READ)
+    List<DnsRecord> getRecords(String type, String name) {
         return godaddyService.listRecords(type, name)
     }
 
@@ -74,11 +89,11 @@ class DnsRecordController {
     }
 
     @Tag(name = "Dns Record Operations")
-    @Operation(summary = "Deletes every record with this type and name, optionally narrowed to an exact value **Secure")
+    @Operation(summary = "Deletes every record with this type and name **Secure")
     @Delete(value = "/{type}/{name}", produces = MediaType.APPLICATION_JSON)
     @Secure(value = Roles.SYSTEM, permissions = Permissions.DELETE)
-    int deleteRecords(String type, String name, @QueryValue(defaultValue = "") String data) {
+    int deleteRecords(String type, String name) {
         log.info("Deleting ${type} records at ${name}")
-        return godaddyService.deleteRecords(type, name, data)
+        return godaddyService.deleteRecords(type, name)
     }
 }

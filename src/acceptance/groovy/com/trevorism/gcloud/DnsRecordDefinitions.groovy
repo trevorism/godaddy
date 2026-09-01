@@ -19,6 +19,7 @@ JsonHttpClient anonymousHttpClient = new JsonHttpClient()
 boolean rejected
 List records
 String challengeValue
+String recordName
 
 Given(/the application is alive/) { ->
     assert anonymousHttpClient.get("${baseUrl}/ping") == "pong"
@@ -54,17 +55,30 @@ Then(/some records are returned/) { ->
     assert records
 }
 
-When(/a txt record is created at {string}/) { String name ->
+When(/a txt record is created under a name unique to this run/) { ->
+    recordName = "_acceptance-${UUID.randomUUID()}"
     challengeValue = "acceptance-${System.currentTimeMillis()}"
-    secureHttpClient.post("${baseUrl}/record", gson.toJson([name: name, type: "TXT", data: challengeValue, ttl: 600]))
+    secureHttpClient.post("${baseUrl}/record", gson.toJson([name: recordName, type: "TXT", data: challengeValue, ttl: 600]))
 }
 
-Then(/the txt record is present at {string}/) { String name ->
-    records = gson.fromJson(secureHttpClient.get("${baseUrl}/record?type=TXT&name=${name}"), List)
-    assert records.any { it["data"] == challengeValue }
+Then(/the txt record is present at that name/) { ->
+    records = gson.fromJson(secureHttpClient.get("${baseUrl}/record/TXT/${recordName}"), List)
+    assert records.size() == 1
+    assert records.first()["data"] == challengeValue
 }
 
-Then(/deleting the txt record removes exactly one record/) { ->
-    String deleted = secureHttpClient.delete("${baseUrl}/record/TXT/_acceptance?data=${challengeValue}")
-    assert deleted.trim() == "1"
+Then(/deleting the txt records at that name leaves none behind/) { ->
+    assert secureHttpClient.delete("${baseUrl}/record/TXT/${recordName}").trim().toInteger() == 1
+    assert gson.fromJson(secureHttpClient.get("${baseUrl}/record/TXT/${recordName}"), List).isEmpty()
+    recordName = null
+}
+
+After { scenario ->
+    if (recordName) {
+        try {
+            secureHttpClient.delete("${baseUrl}/record/TXT/${recordName}")
+        } catch (Exception ignored) {
+        }
+        recordName = null
+    }
 }

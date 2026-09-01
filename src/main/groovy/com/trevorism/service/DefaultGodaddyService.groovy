@@ -67,11 +67,8 @@ class DefaultGodaddyService implements GodaddyService {
     }
 
     @Override
-    int deleteRecords(String type, String name, String data) {
+    int deleteRecords(String type, String name) {
         List<DnsRecord> matches = listRecords(type, RecordNameNormalizer.normalize(name))
-        if (data) {
-            matches = matches.findAll { it.data == data }
-        }
         matches.each { deleteRecord(it.recordId) }
         return matches.size()
     }

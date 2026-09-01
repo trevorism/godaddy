@@ -15,7 +15,7 @@ interface GodaddyService {
 
     DnsRecord upsertRecord(String type, String name, DnsRecord record)
 
-    int deleteRecords(String type, String name, String data)
+    int deleteRecords(String type, String name)
 
     Domain getDomain()
 }

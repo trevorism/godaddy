@@ -144,22 +144,17 @@ class DefaultGodaddyServiceTest {
                     new HeadersHttpResponse("")
                 }] as HttpClient)
 
-        assert service.deleteRecords("TXT", "_acme-challenge", null) == 2
+        assert service.deleteRecords("TXT", "_acme-challenge") == 2
         assert deleted.size() == 2
+        assert deleted.first().endsWith("/dns-records/1")
+        assert deleted.last().endsWith("/dns-records/2")
     }
 
     @Test
-    void testDeleteRecordsNarrowedToOneValue() {
-        List<String> deleted = []
-        def service = buildService([
-                get   : { String url, Map headers -> new HeadersHttpResponse(TWO_TXT_RECORDS) },
-                delete: { String url, Map headers ->
-                    deleted << url
-                    new HeadersHttpResponse("")
-                }] as HttpClient)
+    void testDeleteRecordsWhenNothingMatches() {
+        def service = buildService([get: { String url, Map headers -> new HeadersHttpResponse('{"items":[]}') }] as HttpClient)
 
-        assert service.deleteRecords("TXT", "_acme-challenge", "second") == 1
-        assert deleted.first().endsWith("/dns-records/2")
+        assert service.deleteRecords("TXT", "_absent") == 0
     }
 
     @Test
