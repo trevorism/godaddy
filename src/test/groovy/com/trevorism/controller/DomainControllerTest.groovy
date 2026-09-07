@@ -8,9 +8,10 @@ class DomainControllerTest {
 
     @Test
     void testGetDomain() {
-        def controller = new DomainController([getDomain: {
+        def controller = new DomainController()
+        controller.godaddyService = [getDomain: {
             new Domain(domain: "trevorism.com", status: "ACTIVE", nameServers: ["ns01.domaincontrol.com"])
-        }] as GodaddyService)
+        }] as GodaddyService
 
         assert controller.getDomain().domain == "trevorism.com"
     }

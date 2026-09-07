@@ -1,13 +1,9 @@
 package com.trevorism.service
 
 import com.google.gson.Gson
-import com.trevorism.PropertiesProvider
-import com.trevorism.http.HeadersHttpResponse
-import com.trevorism.http.HttpClient
-import com.trevorism.http.JsonHttpClient
+import com.trevorism.https.SecureHttpClient
 import com.trevorism.model.DnsRecord
 import com.trevorism.model.Domain
-import jakarta.inject.Inject
 import jakarta.inject.Singleton
 
 @Singleton
@@ -16,36 +12,30 @@ class DefaultGodaddyService implements GodaddyService {
     private static final String BASE_URL = "https://api.godaddy.com/v3/domains"
     private static final String ZONE = RecordNameNormalizer.ZONE
 
-    private HttpClient httpClient = new JsonHttpClient()
+    private SecureHttpClient httpClient = new GodaddySecureHttpClient()
     private Gson gson = new Gson()
-
-    @Inject
-    private PropertiesProvider propertiesProvider
 
     @Override
     List<DnsRecord> listRecords(String type, String name) {
-        HeadersHttpResponse response = httpClient.get("${recordsUrl()}${buildFilter(type, name)}", createAuthHeader())
-        DnsRecordPage page = gson.fromJson(response.value, DnsRecordPage)
+        DnsRecordPage page = gson.fromJson(httpClient.get("${recordsUrl()}${buildFilter(type, name)}"), DnsRecordPage)
         return page?.items ?: []
     }
 
     @Override
     DnsRecord createRecord(DnsRecord record) {
         DnsRecord normalized = withNormalizedName(record)
-        HeadersHttpResponse response = httpClient.post(recordsUrl(), gson.toJson(normalized), createAuthHeader())
-        return gson.fromJson(response.value, DnsRecord)
+        return gson.fromJson(httpClient.post(recordsUrl(), gson.toJson(normalized)), DnsRecord)
     }
 
     @Override
     DnsRecord replaceRecord(String recordId, DnsRecord record) {
         DnsRecord normalized = withNormalizedName(record)
-        HeadersHttpResponse response = httpClient.put("${recordsUrl()}/${recordId}", gson.toJson(normalized), createAuthHeader())
-        return gson.fromJson(response.value, DnsRecord)
+        return gson.fromJson(httpClient.put("${recordsUrl()}/${recordId}", gson.toJson(normalized)), DnsRecord)
     }
 
     @Override
     boolean deleteRecord(String recordId) {
-        httpClient.delete("${recordsUrl()}/${recordId}", createAuthHeader())
+        httpClient.delete("${recordsUrl()}/${recordId}")
         return true
     }
 
@@ -75,8 +65,7 @@ class DefaultGodaddyService implements GodaddyService {
 
     @Override
     Domain getDomain() {
-        HeadersHttpResponse response = httpClient.get("${BASE_URL}/domain-names/${ZONE}", createAuthHeader())
-        return gson.fromJson(response.value, Domain)
+        return gson.fromJson(httpClient.get("${BASE_URL}/domain-names/${ZONE}"), Domain)
     }
 
     private static String recordsUrl() {
@@ -98,10 +87,6 @@ class DefaultGodaddyService implements GodaddyService {
             filters << "name=${URLEncoder.encode(RecordNameNormalizer.normalize(name), "UTF-8")}"
         }
         return filters ? "?${filters.join("&")}" : ""
-    }
-
-    private Map<String, String> createAuthHeader() {
-        return ["Authorization": "Bearer ${propertiesProvider.getProperty("apiKey")}".toString()]
     }
 
     private static class DnsRecordPage {

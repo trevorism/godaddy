@@ -7,9 +7,4 @@ class DnsRecord {
     String type
     String data
     Integer ttl
-    Integer priority
-    Integer weight
-    Integer port
-    String service
-    String protocol
 }
