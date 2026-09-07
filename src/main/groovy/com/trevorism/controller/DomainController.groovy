@@ -10,15 +10,13 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.inject.Inject
 
 @Controller("/domain")
 class DomainController {
 
-    private final GodaddyService godaddyService
-
-    DomainController(GodaddyService godaddyService) {
-        this.godaddyService = godaddyService
-    }
+    @Inject
+    private GodaddyService godaddyService
 
     @Tag(name = "Domain Operations")
     @Operation(summary = "Gets the registration detail for trevorism.com, including nameservers and expiry **Secure")

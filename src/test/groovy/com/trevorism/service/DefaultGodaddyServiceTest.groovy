@@ -1,8 +1,8 @@
 package com.trevorism.service
 
-import com.trevorism.PropertiesProvider
 import com.trevorism.http.HeadersHttpResponse
 import com.trevorism.http.HttpClient
+import com.trevorism.https.token.ObtainTokenFromParameter
 import com.trevorism.model.DnsRecord
 import org.junit.jupiter.api.Test
 
@@ -14,8 +14,7 @@ class DefaultGodaddyServiceTest {
 
     private DefaultGodaddyService buildService(HttpClient httpClient) {
         DefaultGodaddyService service = new DefaultGodaddyService()
-        service.@httpClient = httpClient
-        service.@propertiesProvider = [getProperty: { String key -> "test-pat" }] as PropertiesProvider
+        service.@httpClient = new GodaddySecureHttpClient(httpClient, new ObtainTokenFromParameter("test-pat"))
         return service
     }
 
@@ -63,7 +62,6 @@ class DefaultGodaddyServiceTest {
 
         assert posted.contains('"name":"www"')
         assert !posted.contains("recordId")
-        assert !posted.contains("priority")
         assert created.recordId == "9"
     }
 

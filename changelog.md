@@ -1,3 +1,7 @@
+## 0.3.0
+
+Code cleanup.
+
 ## 0.2.0
 
 Implement API based management of DNS.
