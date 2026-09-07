@@ -4,7 +4,7 @@ Feature: Context Root of this API
   Scenario: Root of the API HTTPS
     Given the application is alive
     When I navigate to "https://godaddy.project.trevorism.com"
-    Then then a link to the help page is displayed
+    Then a link to the help page is displayed
 
   Scenario: Ping HTTPS
     Given the application is alive

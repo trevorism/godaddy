@@ -9,10 +9,10 @@ def contextRootContent
 def pingContent
 
 When(~/^I navigate to "([^"]*)"$/) { String url ->
-    contextRootContent = new URL(baseUrl).text
+    contextRootContent = new URL(url ?: baseUrl).text
 }
 
-Then(~/^then a link to the help page is displayed$/) { ->
+Then(~/^a link to the help page is displayed$/) { ->
     assert contextRootContent
     assert contextRootContent.contains("/help")
 }
